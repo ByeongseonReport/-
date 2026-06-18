@@ -54,6 +54,14 @@ st.subheader(f"👥 비슷한 인구 규모(±5%) 지자체 비교")
 if not similar_df.empty:
     display_df = similar_df[['시도명', '시군구명', '인구수', 'price_10L', 'price_20L', 'price_50L']]
     display_df.columns = ['시도', '시군구', '인구수', '10L가격', '20L가격', '50L가격']
-    st.dataframe(display_df.style.format("{:.0f}"), use_container_width=True)
+    st.dataframe(
+    display_df.style.format({
+        '인구수': '{:,.0f}',
+        '10L가격': '{:,.0f}',
+        '20L가격': '{:,.0f}',
+        '50L가격': '{:,.0f}'
+    }), 
+    use_container_width=True
+)
 else:
     st.write("해당 규모의 다른 지자체가 데이터에 없습니다.")
