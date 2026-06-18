@@ -16,17 +16,20 @@ def load_data():
 df = load_data()
 total_regions = len(df)
 
-# 2. UI 구성 (사이드바 제거 및 상단 배치)
+# 2. UI 구성 (단계별 선택)
 st.title("🗑️ 전국 쓰레기봉투 가격 비교(2026.5 기준)")
-st.markdown("지자체를 선택하면 해당 지역의 가격 정보와 유사 인구 규모 지역을 비교해 드립니다.")
 
-# 상단 선택창
-selected_city = st.selectbox("조회할 지자체를 선택하세요:", df['시군구명'].sort_values().unique())
+# 시도 선택
+selected_sido = st.selectbox("시/도를 선택하세요:", sorted(df['시도명'].unique()))
+
+# 시군구 필터링
+filtered_sigungu = df[df['시도명'] == selected_sido]['시군구명'].sort_values().unique()
+selected_sigungu = st.selectbox("시/군/구를 선택하세요:", filtered_sigungu)
 
 st.markdown("---")
 
 # 3. 데이터 연산
-target = df[df['시군구명'] == selected_city].iloc[0]
+target = df[(df['시도명'] == selected_sido) & (df['시군구명'] == selected_sigungu)].iloc[0]
 pop = target['인구수']
 
 # 순위 계산
@@ -36,10 +39,10 @@ rank_50L = df['price_50L'].rank(ascending=False, method='min')[target.name]
 
 # 유사 규모 지자체 필터링 (인구수 ±5%)
 similar_df = df[(df['인구수'] >= pop * 0.95) & (df['인구수'] <= pop * 1.05)]
-similar_df = similar_df[similar_df['시군구명'] != selected_city].copy()
+similar_df = similar_df[similar_df['시군구명'] != selected_sigungu].copy()
 
 # 4. 결과 출력
-st.subheader(f"📍 {target['시도명']} {target['시군구명']} 가격 정보")
+st.subheader(f"📍 {selected_sido} {selected_sigungu} 가격 정보")
 col1, col2, col3 = st.columns(3)
 col1.metric("10L 가격", f"{int(target['price_10L'])}원")
 col2.metric("20L 가격", f"{int(target['price_20L'])}원")
@@ -47,7 +50,7 @@ col3.metric("50L 가격", f"{int(target['price_50L'])}원")
 
 st.markdown(f"""
 ### 📊 전국 가격 순위
-{target['시도명']} {target['시군구명']}시는 전국 {total_regions}개 지자체 중 
+{selected_sido} {selected_sigungu}는 전국 {total_regions}개 지자체 중 
 **10L {int(rank_10L)}번째, 20L {int(rank_20L)}번째, 50L {int(rank_50L)}번째**로 비쌉니다. 
 (상위 {(rank_10L/total_regions)*100:.1f}%, {(rank_20L/total_regions)*100:.1f}%, {(rank_50L/total_regions)*100:.1f}%)
 """)
