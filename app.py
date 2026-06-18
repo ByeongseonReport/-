@@ -18,9 +18,9 @@ df = load_data()
 total_regions = len(df)
 
 # 2. UI 구성
-st.title("🗑️ 전국 쓰레기봉투 가격 비교 서비스")
+st.title("🗑️ 전국 쓰레기봉투 가격 비교")
 st.sidebar.header("검색 설정")
-selected_city = st.sidebar.selectbox("비교할 지자체를 선택하세요", df['시군구명'].sort_values().unique())
+selected_city = st.sidebar.selectbox("살고 있는 시·군·구를 선택하세요. (가나다순)", df['시군구명'].sort_values().unique())
 
 # 3. 데이터 연산 및 로직
 target = df[df['시군구명'] == selected_city].iloc[0]
